@@ -35,7 +35,7 @@ type response struct {
 
 func (r *response) ToMap() util.Map {
 	maps := util.Map{}
-	err := json.Unmarshal(r.buff.Bytes(), &maps)
+	err := json.Unmarshal(r.Bytes(), &maps)
 	if err != nil {
 		log.Println(err)
 		return nil
@@ -43,8 +43,8 @@ func (r *response) ToMap() util.Map {
 	return maps
 }
 
-func (*response) Bytes() []byte {
-	panic("implement me")
+func (r *response) Bytes() []byte {
+	return r.buff.Bytes()
 }
 
 func RequesterToResponder(r Requester) Responder {

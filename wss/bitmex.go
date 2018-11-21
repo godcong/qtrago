@@ -42,7 +42,7 @@ func (wss *BitMexWSS) CallBack(p util.Map) error {
 	return nil
 }
 
-func (wss *BitMexWSS) Start() error {
+func (wss *BitMexWSS) Start(list []string) error {
 	var err error
 	wss.conn, _, err = websocket.DefaultDialer.Dial(wss.Host, nil)
 	if err != nil {
@@ -50,9 +50,10 @@ func (wss *BitMexWSS) Start() error {
 		return err
 	}
 	wss.Context, wss.cancel = context.WithCancel(context.Background())
+	//first send subscribe
 	err = wss.conn.WriteJSON(util.Map{
 		"op":   "subscribe",
-		"args": []string{"trade:XBTUSD", "trade:ETHUSD", "trade:TRXZ18"},
+		"args": list,
 	})
 	if err != nil {
 		log.Println("write:", err)
@@ -77,7 +78,10 @@ func notify(ctx context.Context, notify WebSocketNotify) {
 		}
 		resp := RequesterToResponder(notify)
 		if resp != nil {
-			notify.CallBack(resp.ToMap())
+			err := notify.CallBack(resp.ToMap())
+			if err != nil {
+				log.Println("callback err", err)
+			}
 		}
 		time.Sleep(time.Second)
 	}

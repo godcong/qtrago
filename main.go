@@ -21,7 +21,7 @@ func main() {
 		log.Println("print callback ", p)
 		return nil
 	})
-	err := bm.Start()
+	err := bm.Start([]string{"trade:XBTUSD", "trade:ETHUSD", "trade:TRXZ18"})
 	if err != nil {
 		log.Println(err)
 		return
