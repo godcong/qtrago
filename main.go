@@ -18,8 +18,9 @@ func main() {
 	err := bm.Start()
 	if err != nil {
 		log.Println(err)
-		time.Sleep(100000)
-		bm.Stop()
-		time.Sleep(100000)
+		return
 	}
+	time.Sleep(time.Second * 100)
+	bm.Stop()
+	time.Sleep(time.Second * 10)
 }

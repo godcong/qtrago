@@ -17,7 +17,6 @@ type BitMexWSS struct {
 }
 
 func (wss *BitMexWSS) Request() ([]byte, error) {
-
 	_, message, err := wss.conn.ReadMessage()
 	if err != nil {
 		log.Println("read:", err)
@@ -59,7 +58,7 @@ func (wss *BitMexWSS) Start() error {
 		log.Println("write:", err)
 		return err
 	}
-	notify(wss.Context, wss)
+	go notify(wss.Context, wss)
 	return nil
 }
 
@@ -69,17 +68,17 @@ func (wss *BitMexWSS) Stop() {
 
 func notify(ctx context.Context, notify WebSocketNotify) {
 	for {
+		log.Println("notify")
 		select {
 		case <-ctx.Done():
 			log.Println("end: ", ctx.Err(), notify.Type())
 			return
 		default:
 		}
-		log.Println("notify")
 		resp := RequesterToResponder(notify)
 		if resp != nil {
 			notify.CallBack(resp.ToMap())
 		}
-		time.Sleep(1000)
+		time.Sleep(time.Second)
 	}
 }
