@@ -52,7 +52,7 @@ func (wss *BitMexWSS) Start() error {
 	wss.Context, wss.cancel = context.WithCancel(context.Background())
 	err = wss.conn.WriteJSON(util.Map{
 		"op":   "subscribe",
-		"args": []string{"orderBookL2:XBTUSD"},
+		"args": []string{"trade:XBTUSD", "trade:ETHUSD", "trade:TRXZ18"},
 	})
 	if err != nil {
 		log.Println("write:", err)
