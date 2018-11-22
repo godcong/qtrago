@@ -78,7 +78,8 @@ func notify(ctx context.Context, notify WebSocketNotify) {
 		}
 		resp := RequesterToResponder(notify)
 		if resp != nil {
-			err := notify.CallBack(resp.ToMap())
+			r := resp.ToMap()
+			err := notify.CallBack(r)
 			if err != nil {
 				log.Println("callback err", err)
 			}

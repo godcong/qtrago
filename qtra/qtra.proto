@@ -1,13 +1,15 @@
 syntax = "proto3";
 
 option java_multiple_files = true;
-option java_package = "com.github.godcong.gtrago";
+option java_package = "com.github.godcong.qtrago";
 option java_outer_classname = "QuantitativeTradingProto";
 
-package gtrago;
+package qtra;
 
 service QuantitativeTrading {
     rpc MessageInfo (MessageRequest) returns (MessageReply) {
+    }
+    rpc Trade(TradeRequest) returns (TradeReply){
     }
 }
 
@@ -17,4 +19,12 @@ message MessageRequest {
 
 message MessageReply {
     string json = 1;
+}
+
+message TradeRequest{
+    string json =1;
+}
+
+message TradeReply {
+    string json =1;
 }

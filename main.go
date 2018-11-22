@@ -21,7 +21,21 @@ func main() {
 		log.Println("print callback ", p)
 		return nil
 	})
-	err := bm.Start([]string{"trade:XBTUSD", "trade:ETHUSD", "trade:TRXZ18"})
+	err := bm.Start([]string{"trade:XBTUSD", "instrument:XBTUSD", "trade:ETHUSD", "instrument:ETHUSD", "trade:TRXZ18", "instrument:TRXZ18"})
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	bm2 := &wss.BitMexWSS{
+		Host: "wss://testnet.bitmex.com/realtime",
+	}
+
+	bm2.Handle(func(p util.Map) error {
+		log.Println("print callback2 ", p)
+		return nil
+	})
+	err = bm2.Start([]string{"trade:XBTUSD", "instrument:XBTUSD", "trade:ETHUSD", "instrument:ETHUSD", "trade:TRXZ18", "instrument:TRXZ18"})
 	if err != nil {
 		log.Println(err)
 		return
