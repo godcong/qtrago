@@ -1,10 +1,10 @@
 syntax = "proto3";
 
 option java_multiple_files = true;
-option java_package = "com.github.godcong.qtrago";
+option java_package = "com.github.godcong.proto";
 option java_outer_classname = "QuantitativeTradingProto";
 
-package qtra;
+package proto;
 
 service QuantitativeTrading {
     rpc MessageInfo (MessageRequest) returns (MessageReply) {
