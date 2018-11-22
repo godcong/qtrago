@@ -45,7 +45,7 @@ func (*qtra) MessageInfo(ctx context.Context, r *proto.MessageRequest) (*proto.M
 		}
 		return reply, err
 	}
-
+	log.Println(maps)
 	reply := &proto.MessageReply{
 		Json: string(i.ToJSON()),
 	}

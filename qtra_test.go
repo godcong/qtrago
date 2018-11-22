@@ -6,7 +6,6 @@ import (
 	"github.com/godcong/qtrago/util"
 	"google.golang.org/grpc"
 	"log"
-	"os"
 	"testing"
 	"time"
 )
@@ -22,9 +21,6 @@ func TestQtra_Start(t *testing.T) {
 
 	// Contact the server and print out its response.
 	name := "fxxk"
-	if len(os.Args) > 1 {
-		name = os.Args[1]
-	}
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	r, err := c.MessageInfo(ctx, &proto.MessageRequest{
