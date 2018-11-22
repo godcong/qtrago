@@ -6,6 +6,7 @@ import (
 	"github.com/godcong/qtrago/proto"
 	"github.com/godcong/qtrago/util"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 	"log"
 	"net"
 )
@@ -15,6 +16,7 @@ type qtra struct {
 }
 
 func (q *qtra) Start() {
+	log.Println("start grpc server")
 	q.Server = grpc.NewServer()
 	proto.RegisterQuantitativeTradingServer(q.Server, q)
 	lis, err := net.Listen("tcp", ":50051")
@@ -22,7 +24,7 @@ func (q *qtra) Start() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	//cli need
-	//reflection.Register(s)
+	reflection.Register(q.Server)
 
 	if err := q.Server.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
@@ -30,10 +32,8 @@ func (q *qtra) Start() {
 }
 
 func (*qtra) MessageInfo(ctx context.Context, r *proto.MessageRequest) (*proto.MessageReply, error) {
-	select {
-	case <-ctx.Done():
-		log.Println("exit", ctx.Err())
-	}
+	log.Println("message")
+
 	maps := util.Map{}
 	err := json.Unmarshal([]byte(r.Json), &maps)
 	i := util.Map{
@@ -54,10 +54,8 @@ func (*qtra) MessageInfo(ctx context.Context, r *proto.MessageRequest) (*proto.M
 }
 
 func (*qtra) Trade(ctx context.Context, r *proto.TradeRequest) (*proto.TradeReply, error) {
-	select {
-	case <-ctx.Done():
-		log.Println("exit", ctx.Err())
-	}
+	log.Println("trade")
+
 	maps := util.Map{}
 	err := json.Unmarshal([]byte(r.Json), &maps)
 	i := util.Map{
