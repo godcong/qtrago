@@ -30,7 +30,7 @@ func main() {
 		}
 	*/
 	bm2 := &wss.BitMexWSS{
-		Host: "wss://www.bitmex.com/realtime",
+		Host: "wss://testnet.bitmex.com/realtime",
 	}
 
 	bm2.Handle(func(p util.Map) error {
