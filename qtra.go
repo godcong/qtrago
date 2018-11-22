@@ -6,7 +6,6 @@ import (
 	"github.com/godcong/qtrago/proto"
 	"github.com/godcong/qtrago/util"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 	"log"
 	"net"
 )
@@ -24,7 +23,7 @@ func (q *qtra) Start() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	//cli need
-	reflection.Register(q.Server)
+	//reflection.Register(q.Server)
 
 	if err := q.Server.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
