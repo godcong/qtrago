@@ -5,6 +5,7 @@ import (
 	"github.com/godcong/qtrago/util"
 	"github.com/gorilla/websocket"
 	"log"
+	"sync"
 	"time"
 )
 
@@ -14,9 +15,32 @@ type BitMexWSS struct {
 	conn   *websocket.Conn
 	f      HandlerFunc
 	Host   string
+	pool   sync.Pool
+	//needWrite bool
+	//writeData util.Map
 }
 
-func (wss *BitMexWSS) Request() ([]byte, error) {
+func (b *BitMexWSS) Pool() sync.Pool {
+	return b.pool
+}
+
+func (b *BitMexWSS) Add(p util.Map) {
+	b.pool.Put(p)
+}
+
+func (wss *BitMexWSS) NeedRead() bool {
+	return true
+}
+
+func (wss *BitMexWSS) NeedWrite() util.Map {
+	v := wss.pool.Get()
+	if v != nil {
+		return v.(util.Map)
+	}
+	return nil
+}
+
+func (wss *BitMexWSS) Read() ([]byte, error) {
 	_, message, err := wss.conn.ReadMessage()
 	if err != nil {
 		log.Println("read:", err)
@@ -26,6 +50,11 @@ func (wss *BitMexWSS) Request() ([]byte, error) {
 	return message, nil
 }
 
+func (wss *BitMexWSS) Write(json util.Map) error {
+	log.Println("write json", json)
+	return wss.conn.WriteJSON(json)
+}
+
 func (wss *BitMexWSS) Type() string {
 	return "bitmex"
 }
@@ -33,6 +62,12 @@ func (wss *BitMexWSS) Type() string {
 func (wss *BitMexWSS) Handle(f HandlerFunc) *BitMexWSS {
 	wss.f = f
 	return wss
+}
+
+func (wss *BitMexWSS) WriteJSON(p util.Map) error {
+	//json := p.ToJSON()
+	//log.Println("write json", string(json))
+	return wss.conn.WriteJSON(p)
 }
 
 func (wss *BitMexWSS) CallBack(p util.Map) error {
@@ -51,7 +86,7 @@ func (wss *BitMexWSS) Start(list []string) error {
 	}
 	wss.Context, wss.cancel = context.WithCancel(context.Background())
 	//first send subscribe
-	err = wss.conn.WriteJSON(util.Map{
+	err = wss.WriteJSON(util.Map{
 		"op":   "subscribe",
 		"args": list,
 	})
@@ -76,14 +111,21 @@ func notify(ctx context.Context, notify WebSocketNotify) {
 			return
 		default:
 		}
-		resp := RequesterToResponder(notify)
-		if resp != nil {
-			r := resp.ToMap()
-			err := notify.CallBack(r)
-			if err != nil {
-				log.Println("callback err", err)
+		if data := notify.NeedWrite(); data != nil {
+			notify.Write(data)
+		}
+
+		if notify.NeedRead() {
+			resp := ReadToResponder(notify)
+			if resp != nil {
+				r := resp.ToMap()
+				err := notify.CallBack(r)
+				if err != nil {
+					log.Println("callback err", err)
+				}
 			}
 		}
-		time.Sleep(time.Second)
+
+		time.Sleep(time.Duration(500) * time.Nanosecond)
 	}
 }

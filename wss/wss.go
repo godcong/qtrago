@@ -18,13 +18,28 @@ type Requester interface {
 	Request() ([]byte, error)
 }
 
+type Reader interface {
+	Read() ([]byte, error)
+}
+
+type Writer interface {
+	Write(p util.Map) error
+}
+
+type ReadWrite interface {
+	Reader
+	Writer
+}
+
 type Clientele interface {
 	Requester
 	Responder
 }
 
 type WebSocketNotify interface {
-	Requester
+	ReadWrite
+	NeedRead() bool
+	NeedWrite() util.Map
 	Type() string
 	CallBack(p util.Map) error
 }
@@ -47,8 +62,8 @@ func (r *response) Bytes() []byte {
 	return r.buff.Bytes()
 }
 
-func RequesterToResponder(r Requester) Responder {
-	b, err := r.Request()
+func ReadToResponder(r Reader) Responder {
+	b, err := r.Read()
 	if err != nil {
 		return nil
 	}
