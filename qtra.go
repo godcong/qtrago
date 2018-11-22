@@ -5,10 +5,28 @@ import (
 	"encoding/json"
 	"github.com/godcong/qtrago/proto"
 	"github.com/godcong/qtrago/util"
+	"google.golang.org/grpc"
 	"log"
+	"net"
 )
 
 type qtra struct {
+	*grpc.Server
+}
+
+func (q *qtra) Start() {
+	q.Server = grpc.NewServer()
+	proto.RegisterQuantitativeTradingServer(q.Server, q)
+	lis, err := net.Listen("tcp", ":50051")
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+	//cli need
+	//reflection.Register(s)
+
+	if err := q.Server.Serve(lis); err != nil {
+		log.Fatalf("failed to serve: %v", err)
+	}
 }
 
 func (*qtra) MessageInfo(ctx context.Context, r *proto.MessageRequest) (*proto.MessageReply, error) {

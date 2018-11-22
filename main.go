@@ -43,6 +43,9 @@ func main() {
 		return
 	}
 
+	q := &qtra{}
+	go q.Start()
+
 	// `signal.Notify` registers the given channel to
 	// receive notifications of the specified signals.
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
@@ -52,6 +55,7 @@ func main() {
 	go func() {
 		sig := <-sigs
 		//bm.Stop()
+		q.Stop()
 		bm2.Stop()
 		fmt.Println(sig)
 		fmt.Println("exiting")
@@ -86,6 +90,7 @@ func main() {
 		"op":   "subscribe",
 		"args": "instrument:TRXZ18",
 	})
+
 	<-done
 
 }
