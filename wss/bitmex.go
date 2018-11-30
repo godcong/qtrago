@@ -28,20 +28,20 @@ func (b *BitMexWSS) Add(p util.Map) {
 	b.pool.Put(p)
 }
 
-func (wss *BitMexWSS) NeedRead() bool {
+func (b *BitMexWSS) NeedRead() bool {
 	return true
 }
 
-func (wss *BitMexWSS) NeedWrite() util.Map {
-	v := wss.pool.Get()
+func (b *BitMexWSS) NeedWrite() util.Map {
+	v := b.pool.Get()
 	if v != nil {
 		return v.(util.Map)
 	}
 	return nil
 }
 
-func (wss *BitMexWSS) Read() ([]byte, error) {
-	_, message, err := wss.conn.ReadMessage()
+func (b *BitMexWSS) Read() ([]byte, error) {
+	_, message, err := b.conn.ReadMessage()
 	if err != nil {
 		log.Println("read:", err)
 		return nil, err
@@ -50,56 +50,56 @@ func (wss *BitMexWSS) Read() ([]byte, error) {
 	return message, nil
 }
 
-func (wss *BitMexWSS) Write(json util.Map) error {
+func (b *BitMexWSS) Write(json util.Map) error {
 	log.Println("write json", json)
-	return wss.conn.WriteJSON(json)
+	return b.conn.WriteJSON(json)
 }
 
-func (wss *BitMexWSS) Type() string {
+func (b *BitMexWSS) Type() string {
 	return "bitmex"
 }
 
-func (wss *BitMexWSS) Handle(f HandlerFunc) *BitMexWSS {
-	wss.f = f
-	return wss
+func (b *BitMexWSS) Handle(f HandlerFunc) *BitMexWSS {
+	b.f = f
+	return b
 }
 
-func (wss *BitMexWSS) WriteJSON(p util.Map) error {
+func (b *BitMexWSS) WriteJSON(p util.Map) error {
 	//json := p.ToJSON()
 	//log.Println("write json", string(json))
-	return wss.conn.WriteJSON(p)
+	return b.conn.WriteJSON(p)
 }
 
-func (wss *BitMexWSS) CallBack(p util.Map) error {
-	if wss.f != nil {
-		return wss.f(p)
+func (b *BitMexWSS) CallBack(p util.Map) error {
+	if b.f != nil {
+		return b.f(p)
 	}
 	return nil
 }
 
-func (wss *BitMexWSS) Start(list []string) error {
+func (b *BitMexWSS) Start(op string, list []string) error {
 	var err error
-	wss.conn, _, err = websocket.DefaultDialer.Dial(wss.Host, nil)
+	b.conn, _, err = websocket.DefaultDialer.Dial(b.Host, nil)
 	if err != nil {
 		log.Fatal("dial:", err)
 		return err
 	}
-	wss.Context, wss.cancel = context.WithCancel(context.Background())
+	b.Context, b.cancel = context.WithCancel(context.Background())
 	//first send subscribe
-	err = wss.WriteJSON(util.Map{
-		"op":   "subscribe",
+	err = b.WriteJSON(util.Map{
+		"op":   op,
 		"args": list,
 	})
 	if err != nil {
 		log.Println("write:", err)
 		return err
 	}
-	go notify(wss.Context, wss)
+	go notify(b.Context, b)
 	return nil
 }
 
-func (wss *BitMexWSS) Stop() {
-	wss.cancel()
+func (b *BitMexWSS) Stop() {
+	b.cancel()
 }
 
 func notify(ctx context.Context, notify WebSocketNotify) {
@@ -112,7 +112,7 @@ func notify(ctx context.Context, notify WebSocketNotify) {
 		default:
 		}
 		if data := notify.NeedWrite(); data != nil {
-			notify.Write(data)
+			_ = notify.Write(data)
 		}
 
 		if notify.NeedRead() {
