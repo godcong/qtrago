@@ -2,9 +2,13 @@ package wss
 
 import (
 	"context"
+	"crypto/hmac"
+	"crypto/sha256"
+	"fmt"
 	"github.com/godcong/qtrago/util"
 	"github.com/gorilla/websocket"
 	"log"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -77,7 +81,7 @@ func (b *BitMexWSS) CallBack(p util.Map) error {
 	return nil
 }
 
-func (b *BitMexWSS) Start(op string, list []string) error {
+func (b *BitMexWSS) Start(p util.Map) error {
 	var err error
 	b.conn, _, err = websocket.DefaultDialer.Dial(b.Host, nil)
 	if err != nil {
@@ -86,10 +90,7 @@ func (b *BitMexWSS) Start(op string, list []string) error {
 	}
 	b.Context, b.cancel = context.WithCancel(context.Background())
 	//first send subscribe
-	err = b.WriteJSON(util.Map{
-		"op":   op,
-		"args": list,
-	})
+	err = b.WriteJSON(p)
 	if err != nil {
 		log.Println("write:", err)
 		return err
@@ -128,4 +129,16 @@ func notify(ctx context.Context, notify WebSocketNotify) {
 
 		time.Sleep(time.Duration(500) * time.Nanosecond)
 	}
+}
+
+func HmacSha256(secret, data []byte) string {
+	h := hmac.New(sha256.New, []byte(secret))
+	h.Write(data)
+	return fmt.Sprintf("%x", h.Sum(nil))
+}
+
+func HmacRealTime(secret []byte, expires int64) string {
+	bStr := []byte("GET/realtime")
+	bStr = strconv.AppendInt(bStr, expires, 10)
+	return HmacSha256(secret, bStr)
 }

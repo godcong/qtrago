@@ -37,7 +37,10 @@ func main() {
 		log.Println("print callback2 ", p)
 		return nil
 	})
-	err = bm2.Start("subscribe", []string{"trade:ETHUSD"})
+	err = bm2.Start(util.Map{
+		"op":   "authKeyExpires",
+		"args": "trade:TRXZ18",
+	})
 	if err != nil {
 		log.Println(err)
 		return
