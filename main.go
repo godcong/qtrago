@@ -37,7 +37,7 @@ func main() {
 		log.Println("print callback2 ", p)
 		return nil
 	})
-	err = bm2.Start([]string{"trade:ETHUSD"})
+	err = bm2.Start("subscribe", []string{"trade:ETHUSD"})
 	if err != nil {
 		log.Println(err)
 		return
@@ -67,26 +67,26 @@ func main() {
 	//fmt.Println("awaiting signal")
 	//time.Sleep(5 * time.Second)
 	//, "instrument:XBTUSD", "trade:ETHUSD", "instrument:ETHUSD", "trade:TRXZ18", "instrument:TRXZ18"
-	bm2.Add(util.Map{
+	bm2.PutWrite(util.Map{
 		"op":   "subscribe",
 		"args": "trade:TRXZ18",
 	})
 	//time.Sleep(5 * time.Second)
-	bm2.Add(util.Map{
+	bm2.PutWrite(util.Map{
 		"op":   "subscribe",
 		"args": "trade:XBTUSD",
 	})
-	bm2.Add(util.Map{
+	bm2.PutWrite(util.Map{
 		"op":   "subscribe",
 		"args": "instrument:XBTUSD",
 	})
 	//time.Sleep(5 * time.Second)
-	bm2.Add(util.Map{
+	bm2.PutWrite(util.Map{
 		"op":   "subscribe",
 		"args": "instrument:ETHUSD",
 	})
 	//time.Sleep(5 * time.Second)
-	bm2.Add(util.Map{
+	bm2.PutWrite(util.Map{
 		"op":   "subscribe",
 		"args": "instrument:TRXZ18",
 	})

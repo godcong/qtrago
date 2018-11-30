@@ -24,7 +24,7 @@ func (b *BitMexWSS) Pool() sync.Pool {
 	return b.pool
 }
 
-func (b *BitMexWSS) Add(p util.Map) {
+func (b *BitMexWSS) PutWrite(p util.Map) {
 	b.pool.Put(p)
 }
 
